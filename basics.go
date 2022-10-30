@@ -131,7 +131,7 @@ var wg sync.WaitGroup
 
 
 func printNo(x int) {
-	wg.Done();
+	defer wg.Done();
 	fmt.Println(x);
 }
 
