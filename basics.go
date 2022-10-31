@@ -1,4 +1,4 @@
-package main
+//package main
 
 import (
 	"fmt"
@@ -129,10 +129,9 @@ func (kv *KV) Put(args *PutArgs, reply *PutReply) error {
 
 var wg sync.WaitGroup
 
-
 func printNo(x int) {
-	defer wg.Done();
-	fmt.Println(x);
+	defer wg.Done()
+	fmt.Println(x)
 }
 
 //
@@ -141,18 +140,17 @@ func printNo(x int) {
 
 func main() {
 	server()
-	
+
 	put("subject", "6.824")
 	fmt.Printf("Put(subject, 6.824) done\n")
 	fmt.Printf("get(subject) -> %s\n", get("subject"))
-	
-	// loop
-	for i := 0; i<5; i++{
-		// go routine
-		wg.Add(1);
-		go printNo(i);
-	}
-	wg.Wait();
 
+	// loop
+	for i := 0; i < 5; i++ {
+		// go routine
+		wg.Add(1)
+		go printNo(i)
+	}
+	wg.Wait()
 
 }
