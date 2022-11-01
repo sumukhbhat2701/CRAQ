@@ -4,11 +4,9 @@ import (
 	"CRAQ/transport"
 	"fmt"
 	"log"
-	"math/rand"
 	"net"
 	"net/rpc"
 	"sync"
-	"time"
 )
 
 var wg sync.WaitGroup
@@ -213,8 +211,8 @@ func (kv *KV) GetLatest(args *transport.GetArgs, reply *transport.GetReply) erro
 
 func (kv *KV) Get(args *transport.GetArgs, reply *transport.GetReply) error {
 	//fmt.Println("GET started for %s...", args.Key)
-	random := (rand.Intn(5-1) + 1)
-	time.Sleep(time.Duration(random) * time.Second)
+	//random := (rand.Intn(5-1) + 1)
+	//time.Sleep(time.Duration(random) * time.Second)
 	kv.mu.Lock()
 	defer kv.mu.Unlock()
 	reply.Version = kv.Bk.Version[args.Key]
@@ -247,8 +245,8 @@ func (kv *KV) Get(args *transport.GetArgs, reply *transport.GetReply) error {
 
 func (kv *KV) Put(args *transport.PutArgs, reply *transport.PutReply) error {
 	//fmt.Println("PUT started %s:%s...", args.Key, args.Value)
-	random := (rand.Intn(3-1) + 1)
-	time.Sleep(time.Duration(random) * time.Second)
+	//random := (rand.Intn(3-1) + 1)
+	//time.Sleep(time.Duration(random) * time.Second)
 	kv.mu.Lock()
 	defer kv.mu.Unlock()
 
