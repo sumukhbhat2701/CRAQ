@@ -199,17 +199,17 @@ func main() {
 	}
 	wg.Wait()
 
-	go put("R1", "12.5", node_ports[0])
+	go put("R1", "12.5", node_ports[n-1])
 
-	fmt.Println("R1 @8000: ", get("R1", node_ports[0]))
+	fmt.Println("R1 @8000: ", get("R1", node_ports[n-1]))
 
 	go put("R1", "12.6", node_ports[0])
 
-	fmt.Println("R1 @8000: ", get("R1", node_ports[0]))
+	fmt.Println("R1 @8000: ", get("R1", node_ports[n-1]))
 
-	fmt.Println("R1 @8000: ", get("R1", node_ports[0]))
+	fmt.Println("R1 @8000: ", get("R1", node_ports[n-1]))
 
-	fmt.Println("R1 @8000: ", get("R1", node_ports[0]))
+	fmt.Println("R1 @8000: ", get("R1", node_ports[n-1]))
 
 	wg.Wait()
 

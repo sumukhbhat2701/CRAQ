@@ -1,6 +1,7 @@
 package main
 
 import (
+	"CRAQ/transport"
 	"fmt"
 	"log"
 	"math/rand"
@@ -17,46 +18,13 @@ const (
 	ErrNoKey = "ErrNoKey"
 )
 
-type Err string
-
-type PutArgs struct {
-	Key     string
-	Value   string
-	Version string
-}
-
-type PutReply struct {
-	Err     Err
-	Next    string
-	Prev    string
-	Version int
-}
-
-type GetArgs struct {
-	Key string
-}
-
-type GetReply struct {
-	Err     Err
-	Value   string
-	Version int
-}
-
-func connect(port_no string) *rpc.Client {
-	client, err := rpc.Dial("tcp", port_no)
-	if err != nil {
-		log.Fatal("dialing:", err)
-	}
-	return client
-}
-
-func get(key string, port_no string) GetReply {
+func get(key string, port_no string) transport.GetReply {
 	wg.Add(1)
 	defer wg.Done()
 
-	client := connect(port_no)
-	args := GetArgs{key}
-	reply := GetReply{}
+	client := transport.Connect(port_no)
+	args := transport.GetArgs{key}
+	reply := transport.GetReply{}
 
 	err := client.Call("KV.Get", &args, &reply)
 	if err != nil {
@@ -70,9 +38,9 @@ func get_latest(key string, port string) int {
 	wg.Add(1)
 	defer wg.Done()
 
-	client := connect(port)
-	args := GetArgs{key}
-	reply := GetReply{}
+	client := transport.Connect(port)
+	args := transport.GetArgs{key}
+	reply := transport.GetReply{}
 
 	err := client.Call("KV.GetLatest", &args, &reply)
 	if err != nil {
@@ -86,9 +54,9 @@ func updateCoordinator(key string, port string) {
 	wg.Add(1)
 	defer wg.Done()
 
-	client := connect(port)
-	args := GetArgs{key}
-	reply := GetReply{}
+	client := transport.Connect(port)
+	args := transport.GetArgs{key}
+	reply := transport.GetReply{}
 
 	err := client.Call("KV.Update", &args, &reply)
 	if err != nil {
@@ -111,10 +79,10 @@ func put(key string, val string, cport_no string) {
 	//fmt.Println("Latest version:", latest)
 
 	for head != "" {
-		client := connect(head)
+		client := transport.Connect(head)
 		version := "dirty"
-		args := PutArgs{key, val, version}
-		reply := PutReply{}
+		args := transport.PutArgs{key, val, version}
+		reply := transport.PutReply{}
 		//fmt.Println("Calling KV.Put for:", head, ", state:", version)
 		err := client.Call("KV.Put", &args, &reply)
 		//fmt.Println()
@@ -130,9 +98,9 @@ func put(key string, val string, cport_no string) {
 
 	//fmt.Println("Here head is:", head, " and tail is:", tail)
 	// Need to clean tail node which is next
-	client := connect(curr)
-	args := PutArgs{key, val, "clean"}
-	reply := PutReply{}
+	client := transport.Connect(curr)
+	args := transport.PutArgs{key, val, "clean"}
+	reply := transport.PutReply{}
 	//fmt.Println("Calling KV.Put for:", curr, ", state:", "clean")
 	err := client.Call("KV.Put", &args, &reply)
 	//fmt.Println()
@@ -147,9 +115,9 @@ func put(key string, val string, cport_no string) {
 	//fmt.Println("Latest version:", latest)
 
 	for tail != "" {
-		client := connect(tail)
-		args := PutArgs{key, val, "clean"}
-		reply := PutReply{}
+		client := transport.Connect(tail)
+		args := transport.PutArgs{key, val, "clean"}
+		reply := transport.PutReply{}
 		//fmt.Println("Calling KV.Put for:", tail, ", state:", "clean")
 		err := client.Call("KV.Put", &args, &reply)
 		//fmt.Println()
@@ -164,7 +132,7 @@ func put(key string, val string, cport_no string) {
 
 }
 
-func (kv *KV) Update(args *GetArgs, reply *GetReply) error {
+func (kv *KV) Update(args *transport.GetArgs, reply *transport.GetReply) error {
 	kv.mu.Lock()
 	defer kv.mu.Unlock()
 
@@ -173,7 +141,7 @@ func (kv *KV) Update(args *GetArgs, reply *GetReply) error {
 	return nil
 }
 
-func (kv *KV) GetLatest(args *GetArgs, reply *GetReply) error {
+func (kv *KV) GetLatest(args *transport.GetArgs, reply *transport.GetReply) error {
 	kv.mu.Lock()
 	defer kv.mu.Unlock()
 
@@ -243,7 +211,7 @@ func node(id string, port_no string, next string, prev string, coordinator strin
 	}()
 }
 
-func (kv *KV) Get(args *GetArgs, reply *GetReply) error {
+func (kv *KV) Get(args *transport.GetArgs, reply *transport.GetReply) error {
 	//fmt.Println("GET started for %s...", args.Key)
 	random := (rand.Intn(5-1) + 1)
 	time.Sleep(time.Duration(random) * time.Second)
@@ -277,7 +245,7 @@ func (kv *KV) Get(args *GetArgs, reply *GetReply) error {
 	return nil
 }
 
-func (kv *KV) Put(args *PutArgs, reply *PutReply) error {
+func (kv *KV) Put(args *transport.PutArgs, reply *transport.PutReply) error {
 	//fmt.Println("PUT started %s:%s...", args.Key, args.Value)
 	random := (rand.Intn(3-1) + 1)
 	time.Sleep(time.Duration(random) * time.Second)
