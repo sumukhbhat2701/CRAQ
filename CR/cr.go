@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/rpc"
 	"sync"
+	"time"
 )
 
 var wg sync.WaitGroup
@@ -199,16 +200,17 @@ func main() {
 	}
 	wg.Wait()
 
-	go put("R1", "12.5", node_ports[n-1])
+	go put("R1", "12.5", node_ports[0])
 
+	time.Sleep(2 * time.Second)
 	fmt.Println("R1 @8000: ", get("R1", node_ports[n-1]))
 
 	go put("R1", "12.6", node_ports[0])
-
+	time.Sleep(2 * time.Second)
 	fmt.Println("R1 @8000: ", get("R1", node_ports[n-1]))
 
-	fmt.Println("R1 @8000: ", get("R1", node_ports[n-1]))
-
+	go put("R1", "12.8", node_ports[0])
+	time.Sleep(2 * time.Second)
 	fmt.Println("R1 @8000: ", get("R1", node_ports[n-1]))
 
 	wg.Wait()
