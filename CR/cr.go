@@ -18,16 +18,16 @@ const (
 
 type Err string
 
-type PutArgs struct {
-	Key   string
-	Value string
-}
-
 type PutReply struct {
 	Err     Err
 	Next    string
 	Prev    string
 	Version int
+}
+
+type PutArgs struct {
+	Key   string
+	Value string
 }
 
 type GetArgs struct {
@@ -163,6 +163,13 @@ func (kv *KV) Get(args *GetArgs, reply *GetReply) error {
 	return nil
 }
 
+func set_null(i int, n int, arr []string) string {
+	if i >= n || i < 0 {
+		return ""
+	}
+	return arr[i]
+}
+
 func (kv *KV) Put(args *PutArgs, reply *PutReply) error {
 	kv.mu.Lock()
 	defer kv.mu.Unlock()
@@ -176,13 +183,6 @@ func (kv *KV) Put(args *PutArgs, reply *PutReply) error {
 	reply.Version = kv.bk.Version[args.Key]
 
 	return nil
-}
-
-func set_null(i int, n int, arr []string) string {
-	if i >= n || i < 0 {
-		return ""
-	}
-	return arr[i]
 }
 
 func main() {
